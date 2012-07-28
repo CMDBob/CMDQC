@@ -1,0 +1,13 @@
+TODO:
+
+Initial Stuff
+-------------
+
+* Restructure QC into a folder based structure
+* Make weapons more 'modular', like a generalised function for hitscan stuff
+
+Next Step
+---------
+
+* Begin to experiment with rotating brushes
+* Look at an inventory system
