@@ -266,6 +266,8 @@ local float		rs;
 	if (self.watertype == CONTENT_SLIME)
 	{
 // FIX ME	put in some steam here
+		if (self.waterlevel == 3)
+			DeathBubbles(1);
 		if (random() > 0.5)
 			sound (self, CHAN_VOICE, "player/lburn1.wav", 1, ATTN_NORM);
 		else
@@ -358,8 +360,12 @@ void() player_die_ax1;
 void() DeathBubblesSpawn =
 {
 local entity	bubble;
-	if (self.owner.waterlevel != 3)
-		return;
+//	if (self.owner.waterlevel != 3)
+	if ((self.owner.waterlevel != 3) && (self.owner.health > 0))
+		{
+			remove(self);	// remove bubble spawner
+			return;
+		}
 	bubble = spawn();
 	setmodel (bubble, "progs/s_bubble.spr");
 	setorigin (bubble, self.owner.origin + '0 0 24');
@@ -372,7 +378,8 @@ local entity	bubble;
 	bubble.frame = 0;
 	bubble.cnt = 0;
 	setsize (bubble, '-8 -8 -8', '8 8 8');
-	self.nextthink = time + 0.1;
+//	self.nextthink = time + 0.1;
+	self.nextthink = time + 0.01;
 	self.think = DeathBubblesSpawn;
 	self.air_finished = self.air_finished + 1;
 	if (self.air_finished >= self.bubble_count)
@@ -387,12 +394,13 @@ local entity	bubble_spawner;
 	setorigin (bubble_spawner, self.origin);
 	bubble_spawner.movetype = MOVETYPE_NONE;
 	bubble_spawner.solid = SOLID_NOT;
-	bubble_spawner.nextthink = time + 0.1;
+//	bubble_spawner.nextthink = time + 0.1;
+	bubble_spawner.nextthink = time + 0.01;
 	bubble_spawner.think = DeathBubblesSpawn;
 	bubble_spawner.air_finished = 0;
 	bubble_spawner.owner = self;
 	bubble_spawner.bubble_count = num_bubbles;
-	return;
+//	return;
 };
 
 
@@ -525,11 +533,14 @@ void() PlayerDie =
 {
 	local	float	i;
 	
-	self.items = self.items - (self.items & IT_INVISIBILITY);
+//	self.items = self.items - (self.items & IT_INVISIBILITY);
+	self.items = self.items - (self.items &
+	(IT_INVISIBILITY | IT_INVULNERABILITY | IT_SUIT | IT_QUAD) );
 	self.invisible_finished = 0;	// don't die as eyes
 	self.invincible_finished = 0;
 	self.super_damage_finished = 0;
 	self.radsuit_finished = 0;
+	self.effects = 0;	// 1998-07-23 Glowing corpse of players which had quad/pentagram until respawn fix by Maddes
 	self.modelindex = modelindex_player;	// don't use eyes
 
 	if (deathmatch || coop)

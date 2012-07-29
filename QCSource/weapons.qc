@@ -89,7 +89,7 @@ SpawnMeatSpray
 void(vector org, vector vel) SpawnMeatSpray =
 {
 	local	entity missile, mpuff;
-	local	vector	org;
+//	local	vector	org;
 
 	missile = spawn ();
 	missile.owner = self;
@@ -1027,7 +1027,7 @@ CheatCommand
 */
 void() CheatCommand =
 {
-	if (deathmatch || coop)
+	if (deathmatch)
 		return;
 
 	self.ammo_rockets = 100;
@@ -1208,12 +1208,14 @@ Just for development
 */
 void() ServerflagsCommand =
 {
+	if (deathmatch)
+		return;
 	serverflags = serverflags * 2 + 1;
 };
 
 void() QuadCheat =
 {
-	if (deathmatch || coop)
+	if (deathmatch)
 		return;
 	self.super_time = 1;
 	self.super_damage_finished = time + 30;
@@ -1259,7 +1261,8 @@ void() W_WeaponFrame =
 	if (time < self.attack_finished)
 		return;
 
-	ImpulseCommands ();
+	if (self.impulse)
+		ImpulseCommands ();
 	
 // check for attack
 	if (self.button0)

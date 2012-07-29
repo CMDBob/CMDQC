@@ -161,7 +161,11 @@ void(entity targ, entity inflictor, entity attacker, float damage) T_Damage=
 	}
 
 // team play damage avoidance
-	if ( (teamplay == 1) && (targ.team > 0)&&(targ.team == attacker.team) )
+//	if ( (teamplay == 1) && (targ.team > 0)&&(targ.team == attacker.team) )
+	if ( (teamplay == 1) && (targ.team > 0) && (targ.team == attacker.team)
+	&& (targ != attacker) 			
+	&& (attacker.classname == "player")
+	&& (inflictor.classname != "door") )	// because squishing a teammate is still possible
 		return;
 		
 // do the damage

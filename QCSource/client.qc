@@ -76,7 +76,8 @@ void() SetNewParms =
 
 void() DecodeLevelParms =
 {
-	if (serverflags)
+//	if (serverflags)
+	if (!deathmatch)	
 	{
 		if (world.model == "maps/start.bsp")
 			SetNewParms ();		// take away all stuff on starting new episode
@@ -131,6 +132,8 @@ entity() FindIntermission =
 		return spot;
 	
 	objerror ("FindIntermission: no spot");
+	
+	return world;
 };
 
 
@@ -330,7 +333,7 @@ When the player touches this, he gets sent to the map listed in the "map" variab
 void() trigger_changelevel =
 {
 	if (!self.map)
-		objerror ("chagnelevel trigger doesn't have map");
+		objerror ("changelevel trigger doesn't have map");
 	
 	InitTrigger ();
 	self.touch = changelevel_touch;
@@ -384,6 +387,8 @@ Player entered the suicide command
 */
 void() ClientKill =
 {
+	if ((intermission_running)&&((coop)||(deathmatch)))  // not allowed during intermission
+		return;
 	bprint (self.netname);
 	bprint (" suicides\n");
 	set_suicide_frame ();
@@ -513,7 +518,8 @@ void() PutClientInServer =
 	
 //	spot = SelectSpawnPoint ();
 
-	self.origin = spot.origin + '0 0 1';
+//	self.origin = spot.origin + '0 0 1';
+	self.origin = self.oldorigin = spot.origin + '0 0 1';	// 1998-07-21 Respawning where player died fix by Robert Field
 	self.angles = spot.angles;
 	self.fixangle = TRUE;		// turn this way immediately
 
@@ -527,6 +533,8 @@ void() PutClientInServer =
 	setsize (self, VEC_HULL_MIN, VEC_HULL_MAX);
 	
 	self.view_ofs = '0 0 22';
+	
+	self.velocity = '0 0 0';	// 1998-07-21 Player moves after respawn fix by Xian
 
 	player_stand1 ();
 	
@@ -674,13 +682,15 @@ void() CheckRules =
 	timelimit = cvar("timelimit") * 60;
 	fraglimit = cvar("fraglimit");
 	
-	if (timelimit && time >= timelimit)
+//	if (timelimit && time >= timelimit)
+	if (deathmatch && timelimit && time >= timelimit)	// 1998-07-27 Timelimit/Fraglimit fix by Maddes
 	{
 		NextLevel ();
 		return;
 	}
 	
-	if (fraglimit && self.frags >= fraglimit)
+//	if (fraglimit && self.frags >= fraglimit)
+	if (deathmatch && fraglimit && self.frags >= fraglimit)	// 1998-07-27 Timelimit/Fraglimit fix by Maddes
 	{
 		NextLevel ();
 		return;
